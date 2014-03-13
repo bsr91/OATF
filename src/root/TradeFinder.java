@@ -29,24 +29,11 @@ public class TradeFinder {
 		itemArray=new ArrayList<Item>();
 		typeIDURL=new URL("http://eve-files.com/chribba/typeid.txt");
 		
-		//thread for populating itemDB
-		Thread t=new Thread(new Runnable(){
-			public void run(){
-				try {
-					populateItemDatabase();
-				}catch(IOException e){
-					e.printStackTrace();
-				}
-			}
-		});
-		t.run();
-		/**
-		 * TODO Experimental zone
-		 */
+		populateItemDatabase();
 	}
 
 
-	//populate item database ArrayList (no BPOs)
+	//populate item database ArrayList
 	private void populateItemDatabase() throws IOException{
 		BufferedReader in=new BufferedReader(new InputStreamReader(typeIDURL.openStream()));
 		Date start=new Date();
@@ -80,14 +67,13 @@ public class TradeFinder {
 				String id=l.split("@")[0];
 				String name=l.split("@")[1].trim();
 				Item item=new Item(Integer.parseInt(id),name);
-				//checks Item has sales volume (Jita)
-				long svr=eve.getSVR(item, Eve.Jita);
-				if(svr>10){
+				//checks Item has sales volume > 10 (Jita)
+				if(eve.hasMarketData(item)){
 					c++;
 					getItemIDList().add(item);
-					item.setSvr(Eve.Jita, svr);
 					System.out.println(c+": "+item.getName());
 				}
+
 			}
 			page.clear();
 			Date end=new Date();
@@ -95,7 +81,7 @@ public class TradeFinder {
 			System.out.println("Database Populated: Time taken = "+diff/60000+" mins");
 		}
 	}
-	
+
 	private boolean lineIsFiltered(String line){
 		for(String f:filter){
 			if(line.contains(f)){
