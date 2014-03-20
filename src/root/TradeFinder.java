@@ -1,17 +1,20 @@
 package root;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class TradeFinder {
-	private URL typeIDURL;
 	private Eve eve;
 	private ArrayList<Item> itemArray; 
 	
+	private File itemF;
+	
+	private final String delimit="=";
+	
+	@SuppressWarnings("unused")
 	private String[] filter={"Blueprint","Shadow","True","Domination","Ammatar Navy","Blood","Dread","Guristas","Khanid","Syndicate","Thukker",
 			" Tag","Gistii","Corpii","Pithi","Centii","Coreli","Gistum","Corpum","Pithum","Centum","Corelum","Gist","Corpus","Pith","Centus","Core",
 			"Mizuro","Hakim","Gotan","Tobias","Tairei","Selynne","Ahremen","Draclira","Kaikka","Thon","Vepas","Chelm","Brynn","Tuvan","Setele","Cormack",
@@ -27,78 +30,31 @@ public class TradeFinder {
 	public TradeFinder() throws IOException{
 		eve=new Eve();
 		itemArray=new ArrayList<Item>();
-		typeIDURL=new URL("http://eve-files.com/chribba/typeid.txt");
+		itemF=new File("itemdb.txt");
 		
-		populateItemDatabase();
+		createItemDatabase();
 	}
 
 
-	//populate item database ArrayList
-	private void populateItemDatabase() throws IOException{
-		BufferedReader in=new BufferedReader(new InputStreamReader(typeIDURL.openStream()));
-		Date start=new Date();
-		ArrayList<String> page=new ArrayList<String>();
+	
+	//reads filtered+prepared item name/id list from file into array
+	private void createItemDatabase() throws IOException{
+		BufferedReader in=new BufferedReader(new FileReader(itemF));
 		try{
 			String line;
-			while((line=in.readLine())!=null){
-				//item filter
-				if(lineIsFiltered(line)){
-
-					String[] split=line.split(" ");
-					String id=split[0];
-					String name="";
-					for(String p:split){
-						if(!p.equalsIgnoreCase(id)&&(p.length()>0)){
-							name=name+p+" ";
-						}
-					}
-					name.trim();
-					//checks id string is integer, filters DUST514
-					if(isInteger(id)&&(id.length()<6)){
-						page.add(id+"@"+name);
-					}
-				}
+			while((line=in.readLine())!=null && (line.length()>0)){
+				String[] parts=line.split(delimit);
+				int id=Integer.parseInt(parts[0]);
+				String name=parts[1];
+				Item i=new Item(id,name);
+				itemArray.add(i);
+				
+				System.out.println(id+": "+name);
 			}
 		}finally{
 			in.close();
-
-			int c=0;
-			for(String l:page){
-				String id=l.split("@")[0];
-				String name=l.split("@")[1].trim();
-				Item item=new Item(Integer.parseInt(id),name);
-				//checks Item has sales volume > 10 (Jita)
-				if(eve.hasMarketData(item)){
-					c++;
-					getItemIDList().add(item);
-					System.out.println(c+": "+item.getName());
-				}
-
-			}
-			page.clear();
-			Date end=new Date();
-			long diff=end.getTime()-start.getTime();
-			System.out.println("Database Populated: Time taken = "+diff/60000+" mins");
 		}
-	}
-
-	private boolean lineIsFiltered(String line){
-		for(String f:filter){
-			if(line.contains(f)){
-				return false;
-			}
-		}
-		return true;
-	}
-
-	//catch method boolean int test
-	private boolean isInteger(String i){
-		try{
-			Integer.parseInt(i);
-		}catch(NumberFormatException x){
-			return false;
-		}
-		return true;
+		
 	}
 	
 	//get itemID list

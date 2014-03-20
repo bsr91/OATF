@@ -65,6 +65,7 @@ public class Eve {
 		}
 		return r;
 	}	
+	
 	//retrieves last 24hr sales volumes for the item, in the region specified
 	public long getSVR(Item i,EveSystem s){
 		long r=0;

@@ -1,6 +1,10 @@
 package root;
 
-public class Item {
+import java.io.Serializable;
+
+public class Item implements Serializable{
+	private static final long serialVersionUID = -6122011084370038358L;
+	
 	private int id;
 	private String name;
 	
