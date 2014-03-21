@@ -31,7 +31,7 @@ public class Item implements Serializable{
 	public String getName() {
 		return name;
 	}
-	public double getSellAt(EveSystem s) {
+	public double getSellOrder(EveSystem s) {
 		double sell=0;
 		if(s.equals(Eve.Jita)){
 			sell=sellAtJ;
@@ -42,7 +42,7 @@ public class Item implements Serializable{
 		}
 		return sell;
 	}
-	public double getBuyAt(EveSystem s) {
+	public double getBuyOrder(EveSystem s) {
 		double buy=0;
 		if(s.equals(Eve.Jita)){
 			buy=buyAtJ;
@@ -53,7 +53,7 @@ public class Item implements Serializable{
 		}
 		return buy;
 	}
-	public long getSvr(EveSystem s) {
+	public long getSVR(EveSystem s) {
 		long svr=0;
 		if(s.equals(Eve.Jita)){
 			svr=svrJ;
@@ -82,7 +82,7 @@ public class Item implements Serializable{
 			buyAtD=buyAt;
 		}
 	}
-	public void setSvr(EveSystem s,long svr) {
+	public void setSVR(EveSystem s,long svr) {
 		if(s.equals(Eve.Jita)){
 			svrJ=svr;
 		}else if(s.equals(Eve.Amarr)){

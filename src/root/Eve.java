@@ -1,6 +1,7 @@
 package root;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,12 +14,17 @@ public class Eve {
 	private String volID;
 	
 	
-	public static EveSystem Jita;
-	public static EveSystem Dodixie;
-	public static EveSystem Amarr;
+	public static final EveSystem Jita=new EveSystem("Jita","30000142","10000002");
+	public static final EveSystem Dodixie=new EveSystem("Dodixie","30002659","10000032");
+	public static final EveSystem Amarr=new EveSystem("Amarr","30002187","10000043");
+	public static ArrayList<EveSystem> sysList;
 	
 	public static final int BUY=0;
 	public static final int SELL=1;
+	
+	private boolean hasPopulated;
+	
+	public Object lock;
 	
 	//constructor
 	public Eve(){
@@ -28,18 +34,34 @@ public class Eve {
 		vol="http://api.eve-marketdata.com/api/item_history2.xml?char_name=demo&days=2&region_ids=";
 		volID="&type_ids=";
 		
-		Jita=new EveSystem("Jita","30000142","10000002");
-		Amarr=new EveSystem("Amarr","30002187","10000043");
-		Dodixie=new EveSystem("Dodixie","30002659","10000032");
+		sysList=new ArrayList<EveSystem>();
+		sysList.add(Jita);
+		sysList.add(Amarr);
+		sysList.add(Dodixie);
 		
+		hasPopulated=false;
+		
+		lock=new Object();
 		
 	}
 	
-	//checks an itemID has been traded in last 48hrs
-	public boolean hasMarketData(Item i){
-		if((getSVR(i,Jita))>10){
-			return true;
-		}else return false;
+	
+	//populates Itemarray with the data requested
+	public void populateMarketData(final ArrayList<Item> list){
+		MarketThread j=new MarketThread(Eve.Jita,list,this);
+		MarketThread a=new MarketThread(Eve.Amarr,list,this);
+		MarketThread d=new MarketThread(Eve.Dodixie,list,this);
+		
+		j.start();
+		a.start();
+		d.start();
+		synchronized(lock){
+			while(!(j.isReady()&&a.isReady()&&d.isReady())){}
+			System.out.println("All threads ready.");
+			hasPopulated=true;
+			lock.notifyAll();
+		}
+		
 	}
 	
 	//gets buy/max or sell/min for item in system
@@ -81,5 +103,10 @@ public class Eve {
 			x.printStackTrace();
 		}		
 		return r;
+	}
+	
+	//checks if data has been populated
+	public boolean hasPopulatedData(){
+		return hasPopulated;
 	}
 }

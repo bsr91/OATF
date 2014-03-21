@@ -1,16 +1,22 @@
 package root;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class TradeFinder {
 	private Eve eve;
 	private ArrayList<Item> itemArray; 
 	
-	private File itemF;
+	private File itemNameFile;
+	private File itemXMLFile;
 	
 	private final String delimit="=";
 	
@@ -30,17 +36,78 @@ public class TradeFinder {
 	public TradeFinder() throws IOException{
 		eve=new Eve();
 		itemArray=new ArrayList<Item>();
-		itemF=new File("itemdb.txt");
+		itemNameFile=new File("itemdb.txt");
+		itemXMLFile=new File("itemdb.xml");
 		
-		createItemDatabase();
+		
+		importItemDatabase();
+		eve.populateMarketData(getItemIDList());
+
+		try{
+			synchronized(eve.lock){
+				while(!eve.hasPopulatedData()){
+					eve.lock.wait();
+				}
+			}
+		}catch(InterruptedException x){
+			x.printStackTrace();
+		}
+		System.out.println("Exporting Database");
+		exportItemDB();
+
 	}
+
+	//exports item database as xml Item objects to preserve data
+	private void exportItemDB(){
+		try{
+			if(itemXMLFile.exists()){
+				File temp=new File("temp.xml");
+				temp.createNewFile();
+
+				itemXMLFile.delete();
+				temp.renameTo(itemXMLFile);
+			}else{
+				itemXMLFile.createNewFile();
+			}
+			XStream xml=new XStream(new StaxDriver());
+			BufferedWriter out=new BufferedWriter(new FileWriter(itemXMLFile));
+
+			for(Item item:itemArray){
+				String x=xml.toXML(item);
+				out.write(x);
+				out.newLine();
+			}
+			out.close();
+		}catch(IOException x){
+			x.printStackTrace();
+		}
+	}
+	
+	//imports Item database from xml and fills item array
+	private void importItemDatabase(){
+		try{
+			XStream xml=new XStream(new StaxDriver());
+			BufferedReader in=new BufferedReader(new FileReader(itemXMLFile));
+			String line;
+			while((line=in.readLine())!=null){
+				Item i=(Item)xml.fromXML(line);
+				itemArray.add(i);
+			}
+			in.close();
+		}catch(IOException x){
+			x.printStackTrace();
+		}
+
+	}
+
 
 
 	
 	//reads filtered+prepared item name/id list from file into array
-	private void createItemDatabase() throws IOException{
-		BufferedReader in=new BufferedReader(new FileReader(itemF));
+	@SuppressWarnings("unused")
+	private void createItemDatabase(){
 		try{
+			BufferedReader in=new BufferedReader(new FileReader(itemNameFile));
 			String line;
 			while((line=in.readLine())!=null && (line.length()>0)){
 				String[] parts=line.split(delimit);
@@ -48,11 +115,10 @@ public class TradeFinder {
 				String name=parts[1];
 				Item i=new Item(id,name);
 				itemArray.add(i);
-				
-				System.out.println(id+": "+name);
 			}
-		}finally{
 			in.close();
+		}catch(IOException x){
+			x.printStackTrace();
 		}
 		
 	}
