@@ -54,17 +54,15 @@ public class TradeFinder {
 		}catch(InterruptedException x){
 			x.printStackTrace();
 		}
-		//
-		for(Item i:itemArray){
-			System.out.println(i.getBuyOrder(Eve.Jita));
-		}
+		exportItemDB();
+		
 	}
 
 	//exports item database as xml Item objects to preserve data
 	public void exportItemDB(){
 		try{
 			if(itemXMLFile.exists()){
-				File temp=new File("temp.xml");
+				File temp=new File("root/temp.xml");
 				temp.createNewFile();
 
 				itemXMLFile.delete();
