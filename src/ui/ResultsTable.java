@@ -5,9 +5,12 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import root.*;
 
@@ -15,33 +18,60 @@ public class ResultsTable extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JTable table;
+	private DefaultTableModel tModel;
 	private JPanel panel;
-	private String[] c={"Item Name","Buy Price","Sell Price","Tax","Net","Margin","Sales","MDPE"};
+	private Vector<String> c;
 
-	private ArrayList<ArrayList<Object>> results; 
+	private Vector<Vector<Object>> results; 
 	public ResultsTable(){
 		super();
 		setLayout(new BorderLayout());
 
-		results=new ArrayList<ArrayList<Object>>();		
+		c=new Vector<String>();
+		String[] c_={"Item Name","Buy Price","Sell Price","Tax","Net","Margin","Sales","MDPE"};
+		for(String x:c_){
+			c.add(x);
+		}
+
+		results=new Vector<Vector<Object>>();		
+		@SuppressWarnings("rawtypes")
+		final Class[] classes={String.class,Double.class,Double.class,Double.class,Double.class,Double.class,Long.class,Double.class};
+		DefaultTableModel model=new DefaultTableModel(results,c){
+			private static final long serialVersionUID = 1L;
+			@Override
+		    public Class<?> getColumnClass(int columnIndex) {
+		        if (columnIndex < classes.length) 
+		            return classes[columnIndex];
+		        return super.getColumnClass(columnIndex);
+		    }
+		};
 
 		panel=new JPanel(new GridLayout());
-
-
-		add(panel, BorderLayout.CENTER);
+		table=new JTable(model);
+		table.setFillsViewportHeight(true);
+		table.setAutoCreateRowSorter(true);
+		tModel=(DefaultTableModel)table.getModel();
+		
+		
+		JScrollPane jsp=new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		panel.add(jsp);
+		add(panel,BorderLayout.CENTER);
+		add(table.getTableHeader(), BorderLayout.NORTH);
 	}
 
 	public void generateTable(ArrayList<Item> items, EveSystem buySys,int buyType,EveSystem sellSys, int sellType, int min){
+		results.clear();
 		for(Item i:items){
-			
+
 			String name=i.getName();
 			double bPrice=0;
 			double sPrice=0;
 			double tax=0;
 			double net=0;
-			String margin="0";
+			long margin=0;
 			long sales=0;
-			double MDPE=0;
+			long MDPE=0;
 
 			double tax1=0;
 			double tax2=0;
@@ -64,36 +94,27 @@ public class ResultsTable extends JPanel {
 
 
 			tax=tax1+tax2;
-			net=sPrice-bPrice-tax;
+			net=sPrice-bPrice-Math.ceil(tax);
 
-			if(net/sPrice>=min){
-				margin=percentage((net/sPrice));
+			if((net/sPrice)*100>=min){
+				margin=(long) Math.floor((net/sPrice)*100);
 				sales=i.getSVR(sellSys);
-				MDPE=sales*net;
+				MDPE=(long) (sales*net);
 
-				ArrayList<Object> row=new ArrayList<Object>();
+				Vector<Object> row=new Vector<Object>();
 				row.add(name);
-				row.add(bPrice);
-				row.add(sPrice);
-				row.add(tax);
-				row.add(net);
-				row.add(margin);
-				row.add(MDPE);
+				row.add(new Double(bPrice));
+				row.add(new Double(sPrice));
+				row.add(new Double(Math.ceil(tax)));
+				row.add(new Double(net));
+				row.add(new Double(margin));
+				row.add(new Long(sales));
+				row.add(new Double(MDPE));
 
 				results.add(row);
 			}
 		}
-		table=new JTable((Object[][]) results.toArray(),c);
-		table.setFillsViewportHeight(true);
-		table.setAutoCreateRowSorter(true);
-		panel.add(table);
-		add(table.getTableHeader(), BorderLayout.NORTH);
-	}
-	private String percentage(double d){
-		String r="";
-		int d_1=(int)Math.floor(d*100);
-		r=d_1+"%";
-		return r;
+		tModel.fireTableDataChanged();
 	}
 
 }

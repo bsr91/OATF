@@ -7,7 +7,7 @@ public class MarketThread extends Thread {
 	private ArrayList<Item> list;
 	private boolean isReady;
 	private Eve eve;
-	
+
 	//Constructor
 	public MarketThread(EveSystem sys,ArrayList<Item> list,Eve eve){
 		this.sys=sys;
@@ -16,16 +16,10 @@ public class MarketThread extends Thread {
 		this.isReady=false;
 	}
 	public void run(){
-		int c=0;
 		for(Item i:list){
-			if(c<=10){
-				c++;
-				i.setBuyAt(sys, eve.getPrice(i,Eve.BUY,sys));
-				i.setSellAt(sys, eve.getPrice(i,Eve.SELL,sys));
-				i.setSVR(sys,eve.getSVR(i,sys));
-			}else{
-				break;
-			}
+			i.setBuyAt(sys, eve.getPrice(i,Eve.BUY,sys));
+			i.setSellAt(sys, eve.getPrice(i,Eve.SELL,sys));
+			i.setSVR(sys,eve.getSVR(i,sys));
 		}
 		isReady=true;
 		System.out.println("Thread "+sys.getName()+" ready.");

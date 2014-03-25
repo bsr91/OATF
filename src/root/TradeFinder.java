@@ -38,9 +38,11 @@ public class TradeFinder {
 		itemArray=new ArrayList<Item>();
 		itemNameFile=new File("itemdb.txt");
 		itemXMLFile=new File("itemdb.xml");
-		
-		
 		importItemDatabase();
+	}
+	
+	//populates all data
+	public void getData(){
 		eve.populateMarketData(getItemIDList());
 
 		try{
@@ -52,13 +54,14 @@ public class TradeFinder {
 		}catch(InterruptedException x){
 			x.printStackTrace();
 		}
-		System.out.println("Exporting Database");
-		exportItemDB();
-
+		//
+		for(Item i:itemArray){
+			System.out.println(i.getBuyOrder(Eve.Jita));
+		}
 	}
 
 	//exports item database as xml Item objects to preserve data
-	private void exportItemDB(){
+	public void exportItemDB(){
 		try{
 			if(itemXMLFile.exists()){
 				File temp=new File("temp.xml");

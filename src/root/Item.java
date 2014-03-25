@@ -25,6 +25,10 @@ public class Item implements Serializable{
 		this.id=id;
 		this.name=name.trim();
 	}
+	@Override
+	public String toString(){
+		return name;
+	}
 	public int getID() {
 		return id;
 	}
@@ -40,7 +44,7 @@ public class Item implements Serializable{
 		}else if(s.equals(Eve.Dodixie)){
 			sell=sellAtD;
 		}
-		return sell;
+		return Math.ceil(sell);
 	}
 	public double getBuyOrder(EveSystem s) {
 		double buy=0;
@@ -51,7 +55,7 @@ public class Item implements Serializable{
 		}else if(s.equals(Eve.Dodixie)){
 			buy=buyAtD;
 		}
-		return buy;
+		return Math.floor(buy);
 	}
 	public long getSVR(EveSystem s) {
 		long svr=0;

@@ -22,4 +22,8 @@ public class EveSystem {
 	public String getRegID() {
 		return reg;
 	}
+	@Override
+	public String toString(){
+		return name;
+	}
 }
