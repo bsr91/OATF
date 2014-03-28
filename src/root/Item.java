@@ -25,6 +25,17 @@ public class Item implements Serializable{
 		this.id=id;
 		this.name=name.trim();
 	}
+	public void reset(){
+		sellAtJ=0;
+		buyAtJ=0;
+		sellAtA=0;
+		buyAtA=0;
+		sellAtD=0;
+		buyAtD=0;
+		svrJ=0;
+		svrA=0;
+		svrD=0;
+	}
 	@Override
 	public String toString(){
 		return name;

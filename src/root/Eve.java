@@ -1,11 +1,16 @@
 package root;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
+import ui.AppFrame;
+import ui.ProgressPopup;
 
 public class Eve {
 	private String isk;
@@ -22,8 +27,6 @@ public class Eve {
 	public static final int BUY=0;
 	public static final int SELL=1;
 	
-	private boolean hasPopulated;
-	
 	public Object lock;
 	
 	//constructor
@@ -39,29 +42,34 @@ public class Eve {
 		sysList.add(Amarr);
 		sysList.add(Dodixie);
 		
-		hasPopulated=false;
-		
 		lock=new Object();
 		
 	}
 	
 	
 	//populates Itemarray with the data requested
-	public void populateMarketData(final ArrayList<Item> list){
-		MarketThread j=new MarketThread(Eve.Jita,list,this);
-		MarketThread a=new MarketThread(Eve.Amarr,list,this);
-		MarketThread d=new MarketThread(Eve.Dodixie,list,this);
+	public void populateMarketData(final ArrayList<Item> list, final AppFrame a){
+		final ProgressPopup p=new ProgressPopup(list);
+		p.setLocationRelativeTo(a);
+		
+		final MarketThread j=new MarketThread(Eve.Jita,list,this,p);
+		final MarketThread am=new MarketThread(Eve.Amarr,list,this,p);
+		final MarketThread d=new MarketThread(Eve.Dodixie,list,this,p);
 		
 		j.start();
-		a.start();
-		d.start();
-		synchronized(lock){
-			while(!(j.isReady()&&a.isReady()&&d.isReady())){}
-			System.out.println("All threads ready.");
-			hasPopulated=true;
-			lock.notifyAll();
-		}
+		am.start();
+		d.start();		
 		
+		p.getCancel().addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				if(e.getSource()==p.getCancel()){
+					p.dispose();
+					j.stopTask();
+					am.stopTask();
+					d.stopTask();
+				}
+			}
+		});
 	}
 	
 	//gets buy/max or sell/min for item in system
@@ -103,10 +111,5 @@ public class Eve {
 			x.printStackTrace();
 		}		
 		return r;
-	}
-	
-	//checks if data has been populated
-	public boolean hasPopulatedData(){
-		return hasPopulated;
 	}
 }

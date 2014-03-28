@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import ui.AppFrame;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
@@ -42,27 +44,18 @@ public class TradeFinder {
 	}
 	
 	//populates all data
-	public void getData(){
-		eve.populateMarketData(getItemIDList());
-
-		try{
-			synchronized(eve.lock){
-				while(!eve.hasPopulatedData()){
-					eve.lock.wait();
-				}
-			}
-		}catch(InterruptedException x){
-			x.printStackTrace();
+	public void getData(AppFrame a){
+		for(Item i:getItemIDList()){
+			i.reset();
 		}
-		exportItemDB();
-		
+		eve.populateMarketData(getItemIDList(),a);	
 	}
 
 	//exports item database as xml Item objects to preserve data
 	public void exportItemDB(){
 		try{
 			if(itemXMLFile.exists()){
-				File temp=new File("root/temp.xml");
+				File temp=new File("temp.xml");
 				temp.createNewFile();
 
 				itemXMLFile.delete();

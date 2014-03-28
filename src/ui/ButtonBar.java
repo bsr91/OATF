@@ -13,6 +13,7 @@ public class ButtonBar extends JPanel implements ActionListener{
 	
 	private JButton resultButton;
 	private JButton refreshButton;
+	private JButton export;
 	private OATF oatf;
 	private FilterBar fBar;
 	public ButtonBar(FilterBar fBar, OATF oatf){
@@ -23,9 +24,11 @@ public class ButtonBar extends JPanel implements ActionListener{
 		resultButton.addActionListener(this);
 		refreshButton=new JButton("Refresh Data");
 		refreshButton.addActionListener(this);
+		export=new JButton("Export Data");
 		
 		add(resultButton);
 		add(refreshButton);
+		add(export);
 		
 		
 	}
@@ -41,6 +44,10 @@ public class ButtonBar extends JPanel implements ActionListener{
 			
 		}else if(e.getSource()==refreshButton){
 			oatf.handle(new RefreshAllDataEvent());
+		}
+		
+		else if(e.getSource()==export){
+			oatf.handle(new ExportDataEvent());
 		}
 		
 	}

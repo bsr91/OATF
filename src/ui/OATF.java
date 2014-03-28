@@ -41,7 +41,9 @@ public class OATF {
 		if(e.getClass().equals(GetResultRequestEvent.class)){
 			getResults((GetResultRequestEvent)e);
 		}else if(e.getClass().equals(RefreshAllDataEvent.class)){
-			tf.getData();
+			tf.getData(app);
+		}else if(e.getClass().equals(ExportDataEvent.class)){
+			tf.exportItemDB();
 		}
 	}
 	

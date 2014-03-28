@@ -16,5 +16,6 @@ public class AppFrame extends JFrame{
 		setSize(new Dimension(1200,1000));
 		setContentPane(c);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
 	}
 }
