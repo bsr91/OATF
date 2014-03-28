@@ -10,6 +10,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import ui.AppFrame;
+import ui.ExportDataEvent;
+import ui.OATF;
 import ui.ProgressPopup;
 
 public class Eve {
@@ -27,10 +29,12 @@ public class Eve {
 	public static final int BUY=0;
 	public static final int SELL=1;
 	
+	private OATF oatf;
 	public Object lock;
 	
 	//constructor
-	public Eve(){
+	public Eve(OATF oatf){
+		this.oatf=oatf;
 		isk="http://api.eve-central.com/api/marketstat?usesystem=";
 		iskID="&typeid=";
 		
@@ -67,6 +71,17 @@ public class Eve {
 					j.stopTask();
 					am.stopTask();
 					d.stopTask();
+				}
+			}
+		});
+		p.getDone().addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				if(e.getSource()==p.getDone()){
+					p.dispose();
+					j.stopTask();
+					am.stopTask();
+					d.stopTask();
+					oatf.handle(new ExportDataEvent());
 				}
 			}
 		});

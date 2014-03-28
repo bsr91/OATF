@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import ui.AppFrame;
+import ui.OATF;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
@@ -35,8 +36,8 @@ public class TradeFinder {
 			"Scordite","Plagioclase","Module","Sentry","DED ","EoM ","Leader","Commander","Modified"};
 	
 	//constructor
-	public TradeFinder() throws IOException{
-		eve=new Eve();
+	public TradeFinder(OATF oatf) throws IOException{
+		eve=new Eve(oatf);
 		itemArray=new ArrayList<Item>();
 		itemNameFile=new File("itemdb.txt");
 		itemXMLFile=new File("itemdb.xml");
@@ -72,6 +73,7 @@ public class TradeFinder {
 				out.newLine();
 			}
 			out.close();
+			System.out.println("Exported Data");
 		}catch(IOException x){
 			x.printStackTrace();
 		}

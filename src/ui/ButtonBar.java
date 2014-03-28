@@ -20,9 +20,9 @@ public class ButtonBar extends JPanel implements ActionListener{
 		super();
 		this.oatf=oatf;
 		this.fBar=fBar;
-		resultButton=new JButton("Find Results");
+		resultButton=new JButton("Refresh Table");
 		resultButton.addActionListener(this);
-		refreshButton=new JButton("Refresh Data");
+		refreshButton=new JButton("Load Data");
 		refreshButton.addActionListener(this);
 		export=new JButton("Export Data");
 		

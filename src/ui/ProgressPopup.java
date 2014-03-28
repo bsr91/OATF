@@ -12,13 +12,14 @@ import javax.swing.JProgressBar;
 
 import root.*;
 
-public class ProgressPopup extends JDialog {
+public class ProgressPopup extends JDialog{
 	private static final long serialVersionUID = 1L;
 	
 	private JProgressBar p;
 	private JPanel c;
 	private JLabel lbl;
 	private JButton cancel;
+	private JButton done;
 	public ProgressPopup(ArrayList<Item> list){
 		p=new JProgressBar();
 		p.setMaximum(list.size()*3);
@@ -35,8 +36,10 @@ public class ProgressPopup extends JDialog {
 		
 		
 		cancel=new JButton("Cancel");
+		done=new JButton("Done");
 		JPanel bP=new JPanel();
 		bP.add(cancel);
+		bP.add(done);
 		
 		c.add(lP, BorderLayout.NORTH);
 		c.add(pP, BorderLayout.CENTER);
@@ -47,15 +50,18 @@ public class ProgressPopup extends JDialog {
 		setVisible(true);
 		
 	}
-	public JProgressBar getBar(){
-		return p;
-	}
 	public void update(String text){
 		p.setValue(p.getValue()+1);
 		lbl.setText(text);
 	}
+	public JProgressBar getBar(){
+		return p;
+	}
 	public JButton getCancel(){
 		return cancel;
+	}
+	public JButton getDone(){
+		return done;		
 	}
 
 }

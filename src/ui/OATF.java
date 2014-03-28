@@ -12,7 +12,7 @@ public class OATF {
 	private TradeFinder tf;
 	private ButtonBar bb;
 	public OATF() throws IOException{
-		tf=new TradeFinder();
+		tf=new TradeFinder(this);
 		
 		
 		app=new AppFrame();
